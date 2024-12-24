@@ -1,9 +1,20 @@
-const mongoose = require("mongoose");
+const mongoose=require("mongoose");
 
-const customerSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  contact: { type: String, required: true },
-});
 
-module.exports = mongoose.model("Customer", customerSchema);
+const customerSchema=new mongoose.Schema({
+    full_name:{
+        type:String,
+        required:true
+    },
+    email:{
+        type:String,
+        required:true
+    },
+    contact_no:{
+        type:String,
+        required:true
+    }
+})
+
+const Customer=mongoose.model("customers",customerSchema);
+module.exports=Customer;

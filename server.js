@@ -1,21 +1,19 @@
-const express = require("express");
+const  express=require("express");
 const connectDB = require("./config/db");
-const customerRoutes = require("./routes/customerRoutes");
-const authRoutes = require("./routes/authRoutes");
+const app=express();
+const   CustomerRouter=require("./routes/customerRoutes")
+// const HotelRouter=require("./Routes/hotelRoutes");
+// const BookingRouter=require("./Routes/bookingRoutes");
 
-const { verifyToken } = require("./middleware/authMiddleware");
 
-const app = express();
 connectDB();
-
-// Middleware
 app.use(express.json());
+app.use("/api/customers",CustomerRouter)
+// app.use("/api/hotel",HotelRouter)
+// app.use("/api/booking",BookingRouter)
+const port=4000;
+app.listen(port,()=>{
+    console.log(`Server running at http://localhost:${port}`);
+})
 
-// Routes
-app.use("/api/auth", authRoutes); // Authentication routes (no token required here)
-app.use("/api/customers", verifyToken, customerRoutes); // Protect customer routes
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
