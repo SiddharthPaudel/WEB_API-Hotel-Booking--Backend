@@ -11,7 +11,7 @@ app.use(express.json());
 app.use("/api/customers",CustomerRouter)
 app.use("/api/hotel",HotelRouter)
 // app.use("/api/booking",BookingRouter)
-const port=6000;
+const port=9000;
 app.listen(port,()=>{
     console.log(`Server running at http://localhost:${port}`);
 })

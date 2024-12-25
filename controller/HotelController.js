@@ -75,35 +75,43 @@ const deleteById = async (req, res) => {
 
 // Update a hotel by ID
 const update = async (req, res) => {
-  try {
-    const { name, description, pricePerNight, rooms } = req.body;
-
-    // Validate required fields
-    if (!name || !description || !pricePerNight || !rooms) {
-      return res.status(400).json({ error: "All fields are required for update" });
+    try {
+      const { name, description, pricePerNight, rooms } = req.body;
+  
+      // Validate required fields
+      if (!name || !description || !pricePerNight || !rooms) {
+        return res.status(400).json({ error: "All fields are required for update" });
+      }
+  
+      // Find the current hotel by ID
+      const hotel = await Hotel.findById(req.params.id);
+  
+      if (!hotel) {
+        return res.status(404).json({ error: "Hotel not found" });
+      }
+  
+      // If no new image is provided, keep the existing image
+      const image = req.file ? req.file.filename : hotel.image;
+  
+      const updatedHotel = await Hotel.findByIdAndUpdate(
+        req.params.id,
+        {
+          name,
+          description,
+          pricePerNight,
+          rooms,
+          image, // Use the current image if no new image is provided
+        },
+        { new: true } // Return the updated document
+      );
+  
+      res.status(200).json(updatedHotel);
+    } catch (e) {
+      res.status(500).json({ error: "Failed to update hotel", details: e.message });
     }
-
-    // Validate rooms status (ensure it is one of the allowed values)
-    const allowedRoomStatuses = ["Available", "Booked", "Under Maintenance"];
-    if (!allowedRoomStatuses.includes(rooms)) {
-      return res.status(400).json({ error: "Invalid room status" });
-    }
-
-    const hotel = await Hotel.findByIdAndUpdate(
-      req.params.id,
-      { name, description, pricePerNight, rooms, image: req.file ? req.file.originalname : null },
-      { new: true } // Return the updated document
-    );
-
-    if (!hotel) {
-      return res.status(404).json({ error: "Hotel not found" });
-    }
-
-    res.status(200).json(hotel);
-  } catch (e) {
-    res.status(500).json({ error: "Failed to update hotel", details: e.message });
-  }
-};
+  };
+  
+  
 
 module.exports = {
   findAll,
