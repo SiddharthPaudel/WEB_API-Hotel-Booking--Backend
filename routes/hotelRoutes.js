@@ -1,8 +1,10 @@
 const express=require("express");
 const { findAll, saveAll,findById, deleteById, update } = require("../controller/HotelController");
 // const { userValidation } = require("../validation/userValidation");
-// const { authorization } = require("../security/auth");
+const { authenticateToken} = require("../security/Auth");
+
 const router=express.Router();
+
 
 
 const multer=require("multer");
@@ -17,7 +19,7 @@ const storage=multer.diskStorage({
 })
 const upload=multer({storage})
 
-router.get("/",findAll);
+router.get("/", findAll);// secure garnuxa vane authtoken use garni 
 router.post("/",upload.single('file'),saveAll);
 router.get("/:id",findById);
 router.delete("/:id",deleteById);
