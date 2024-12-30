@@ -12,41 +12,41 @@ const findAll = async (req, res) => {
 };
 
 const saveAll = async (req, res) => {
-  try {
-    const customer = new Customer(req.body);
-
-    // Validate request body
-    if (!req.body.email) {
-      return res.status(400).json({ error: "Email is required for registration" });
+    try {
+      const customer = new Customer(req.body);
+  
+      // Validate required fields
+      if (!req.body.email || !req.body.username) {
+        return res.status(400).json({ error: "Email and username are required for registration" });
+      }
+  
+      await customer.save();
+  
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: "psiddhartha62@gmail.com", // Use environment variables
+          pass:"wzbysxugeehsmpog",
+        },
+      });
+  
+      const info = await transporter.sendMail({
+        from: "psiddhartha62@gmail.com",
+        to: customer.email,
+        subject: "Customer Registration",
+        html: `
+          <h1>Your registration has been completed</h1>
+          <p>Your username is <strong>${customer.username}</strong></p>
+        `,
+      });
+  
+      res.status(201).json({ customer, emailInfo: info });
+    } catch (e) {
+      res.status(500).json({ error: "Failed to save customer", details: e.message });
     }
-
-    await customer.save();
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user:"psiddhartha62@gmail.com", // Use environment variables
-        pass: "wzbysxugeehsmpog",
-      },
-    });
-
-    const info = await transporter.sendMail({
-      from: "psiddhartha62@gmail.com",
-      to: customer.email,
-      subject: "Customer Registration",
-      html: `
-        <h1>Your registration has been completed</h1>
-        <p>Your user ID is ${customer.id}</p>
-      `,
-    });
-
-    res.status(201).json({ customer, emailInfo: info });
-  } catch (e) {
-    res.status(500).json({ error: "Failed to save customer", details: e.message });
-  }
-};
+  };
 
 const findById = async (req, res) => {
   try {
