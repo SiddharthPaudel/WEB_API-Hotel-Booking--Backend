@@ -1,67 +1,102 @@
+const Customer = require("../models/Customer");
+const nodemailer = require("nodemailer");
+require("dotenv").config(); // For environment variables
 
-const Customer=require("../models/Customer")
-const findAll=async(req,res)=>{
-
-    try{
-    const customers= await Customer.find(); 
+const findAll = async (req, res) => {
+  try {
+    const customers = await Customer.find();
     res.status(200).json(customers);
-    }
-    catch(e){
-        res.json(e);
-    }
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch customers", details: e.message });
+  }
 };
 
-const saveAll=async(req,res)=>{
-    try{
-    const customers=new Customer(req.body);
-    await customers.save();
-    res.status(201).json(customers)
+const saveAll = async (req, res) => {
+  try {
+    const customer = new Customer(req.body);
+
+    // Validate request body
+    if (!req.body.email) {
+      return res.status(400).json({ error: "Email is required for registration" });
     }
-    catch(e){
-        res.json(e);// status code is required for  better code 
-    }
+
+    await customer.save();
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user:"psiddhartha62@gmail.com", // Use environment variables
+        pass: "wzbysxugeehsmpog",
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: "psiddhartha62@gmail.com",
+      to: customer.email,
+      subject: "Customer Registration",
+      html: `
+        <h1>Your registration has been completed</h1>
+        <p>Your user ID is ${customer.id}</p>
+      `,
+    });
+
+    res.status(201).json({ customer, emailInfo: info });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to save customer", details: e.message });
+  }
 };
 
-const findById=async(req,res)=>{
-    try{
-        const{id}=req.params;
-        const customers=await Customer.findById(id);
-        res.status(200).json(customers);
+const findById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customer = await Customer.findById(id);
 
-    }catch(e){
-        res.json(e);
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
     }
+
+    res.status(200).json(customer);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch customer", details: e.message });
+  }
 };
 
-const deleteById=async(req,res)=>{
-    try{
-        const {id}=req.params;
-        const customers=await Customer.findByIdAndDelete(id);
-        res.status(200).json("deleted sucessfully");
+const deleteById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customer = await Customer.findByIdAndDelete(id);
 
-    }catch(e){
-        res.json(e);
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
     }
+
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to delete customer", details: e.message });
+  }
 };
 
-const update=async(req,res)=>{
-    try{
-        const customers=await Customer.findByIdAndUpdate(req.params.id,req.body,{new:true});
-        res.status(201).json(customers);
+const update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customer = await Customer.findByIdAndUpdate(id, req.body, { new: true });
 
-    }catch(e){
-        res.json(e);
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
     }
+
+    res.status(200).json(customer);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to update customer", details: e.message });
+  }
 };
 
-
-const info =()=>{
-}
-
-module.exports={
-    findAll,
-    saveAll,
-    findById,
-    deleteById,
-    update
-}
+module.exports = {
+  findAll,
+  saveAll,
+  findById,
+  deleteById,
+  update,
+};
