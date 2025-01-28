@@ -77,7 +77,6 @@ const deleteById = async (req, res) => {
     res.status(500).json({ error: "Failed to delete customer", details: e.message });
   }
 };
-
 const update = async (req, res) => {
   try {
     const { id } = req.params;

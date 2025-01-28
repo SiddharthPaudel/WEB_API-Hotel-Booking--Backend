@@ -1,7 +1,7 @@
 const express=require("express");
 const { findAll, saveAll,findById, deleteById, update } = require("../controller/HotelController");
 // const { userValidation } = require("../validation/userValidation");
-const { authenticateToken} = require("../security/Auth");
+const { authenticateToken} = require("../security/Authorize");
 
 const router=express.Router();
 
