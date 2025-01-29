@@ -79,8 +79,9 @@ const login = async (req, res) => {
       token,
       customerId: customer._id, // Include customerId in response
       email: customer.email,
-      name: customer.name,
+      username: customer.username, // ✅ Rename 'name' to 'username' for consistency
     });
+    
   } catch (error) {
     console.error("Error in login:", error);
     res.status(500).json({ error: "Something went wrong during login" });
