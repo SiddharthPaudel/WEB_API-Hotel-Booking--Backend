@@ -13,10 +13,10 @@ const findAll = async (req, res) => {
 // Save a new hotel
 const saveAll = async (req, res) => {
   try {
-    const { name, description, pricePerNight, rooms } = req.body;
+    const { name, description, pricePerNight, rooms, location } = req.body;
 
     // Validate required fields
-    if (!name || !description || !pricePerNight || !rooms) {
+    if (!name || !description || !pricePerNight || !rooms || !location) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -32,6 +32,7 @@ const saveAll = async (req, res) => {
       pricePerNight,
       rooms, // Rooms will be the status string (e.g., "Available", "Booked", "Under Maintenance")
       image: req.file ? req.file.originalname : null, // Handle file upload if available
+      location, // Add the location field to the hotel document
     });
 
     await hotel.save();
@@ -40,6 +41,7 @@ const saveAll = async (req, res) => {
     res.status(500).json({ error: "Failed to save hotel", details: e.message });
   }
 };
+
 
 // Find a hotel by ID
 const findById = async (req, res) => {
@@ -75,41 +77,43 @@ const deleteById = async (req, res) => {
 
 // Update a hotel by ID
 const update = async (req, res) => {
-    try {
-      const { name, description, pricePerNight, rooms } = req.body;
-  
-      // Validate required fields
-      if (!name || !description || !pricePerNight || !rooms) {
-        return res.status(400).json({ error: "All fields are required for update" });
-      }
-  
-      // Find the current hotel by ID
-      const hotel = await Hotel.findById(req.params.id);
-  
-      if (!hotel) {
-        return res.status(404).json({ error: "Hotel not found" });
-      }
-  
-      // If no new image is provided, keep the existing image
-      const image = req.file ? req.file.filename : hotel.image;
-  
-      const updatedHotel = await Hotel.findByIdAndUpdate(
-        req.params.id,
-        {
-          name,
-          description,
-          pricePerNight,
-          rooms,
-          image, // Use the current image if no new image is provided
-        },
-        { new: true } // Return the updated document
-      );
-  
-      res.status(200).json(updatedHotel);
-    } catch (e) {
-      res.status(500).json({ error: "Failed to update hotel", details: e.message });
+  try {
+    const { name, description, location, pricePerNight, rooms } = req.body;
+
+    // Validate required fields
+    if (!name || !description || !location || !pricePerNight || !rooms) {
+      return res.status(400).json({ error: "All fields are required for update" });
     }
-  };
+
+    // Find the current hotel by ID
+    const hotel = await Hotel.findById(req.params.id);
+
+    if (!hotel) {
+      return res.status(404).json({ error: "Hotel not found" });
+    }
+
+    // If no new image is provided, keep the existing image
+    const image = req.file ? req.file.filename : hotel.image;
+
+    const updatedHotel = await Hotel.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        description,
+        location,  // Added location
+        pricePerNight,
+        rooms,
+        image, // Use the current image if no new image is provided
+      },
+      { new: true } // Return the updated document
+    );
+
+    res.status(200).json(updatedHotel);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to update hotel", details: e.message });
+  }
+};
+
   
   
 

@@ -24,6 +24,10 @@ const hotelSchema = new mongoose.Schema({
     enum: ["Available", "Booked", "Under Maintenance"], // Restricts to predefined values
     default: "Available", // Default status
   },
+  location:{
+    type:String,
+    required:true
+  },
   
 });
 
