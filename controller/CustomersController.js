@@ -4,12 +4,16 @@ require("dotenv").config(); // For environment variables
 
 const findAll = async (req, res) => {
   try {
-    const customers = await Customer.find();
+    const customers = await Customer.find({}, "username email _id");
+    console.log("Fetched Customers:", customers); // Debugging log
     res.status(200).json(customers);
   } catch (e) {
+    console.error("Error fetching customers:", e); // Log errors
     res.status(500).json({ error: "Failed to fetch customers", details: e.message });
   }
 };
+
+
 
 const saveAll = async (req, res) => {
     try {
@@ -27,10 +31,11 @@ const saveAll = async (req, res) => {
         port: 587,
         secure: false,
         auth: {
-          user: "psiddhartha62@gmail.com", // Use environment variables
-          pass:"wzbysxugeehsmpog",
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
         },
       });
+      
   
       const info = await transporter.sendMail({
         from: "psiddhartha62@gmail.com",
