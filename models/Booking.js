@@ -9,6 +9,16 @@ const BookingSchema = new mongoose.Schema({
   checkOutDate: { type: Date, required: true },
   numRooms: { type: Number, required: true },
   totalPrice: { type: Number, required: true },
+  paymentMethod: {
+    type: String,
+    enum: ["cash", "esewa", "banking"],  // Updated to include new payment methods
+    required: true
+  }, 
+  paymentStatus: { 
+    type: String, 
+    enum: ["pending", "completed", "failed"], 
+    default: "pending" 
+  }, // New field
 });
 
 module.exports = mongoose.model("Booking", BookingSchema);
