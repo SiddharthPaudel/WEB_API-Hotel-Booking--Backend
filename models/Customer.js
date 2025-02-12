@@ -14,6 +14,7 @@ const customerSchema = new mongoose.Schema({
   contact_no: {
     type: String,
   },
+  isActive: { type: Boolean, default: true},  // Adding isActive field
 });
 
 const Customer = mongoose.model("customers", customerSchema);

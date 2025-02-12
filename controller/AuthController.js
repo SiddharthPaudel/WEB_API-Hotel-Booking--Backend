@@ -60,6 +60,11 @@ const login = async (req, res) => {
       return res.status(403).json({ error: "Invalid email or password" });
     }
 
+    // Check if account is active
+    if (!customer.isActive) {
+      return res.status(403).json({ error: "Your account is inactive. Please contact admin to activate." });
+    }
+
     // Compare password
     const isPasswordValid = await bcrypt.compare(password, customer.password);
     if (!isPasswordValid) {
@@ -81,12 +86,15 @@ const login = async (req, res) => {
       email: customer.email,
       username: customer.username, // ✅ Rename 'name' to 'username' for consistency
     });
-    
+
   } catch (error) {
     console.error("Error in login:", error);
     res.status(500).json({ error: "Something went wrong during login" });
   }
 };
+
+
+
 
 
 module.exports = {

@@ -3,10 +3,14 @@ const Booking = require("../models/Booking");
 // Get all bookings
 exports.findAll = async (req, res) => {
   try {
-    const bookings = await Booking.find();
-    res.status(200).json(bookings);
+      const bookings = await Booking.find();
+      if (!bookings.length) {
+          return res.status(404).json({ message: "No bookings found" });
+      }
+      res.json({ data: bookings });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ message: "Server error" });
   }
 };
 

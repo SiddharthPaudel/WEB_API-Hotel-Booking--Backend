@@ -1,10 +1,12 @@
 const Customer = require("../models/Customer");
 const nodemailer = require("nodemailer");
 require("dotenv").config(); // For environment variables
+const Booking = require("../models/Booking")
 
 const findAll = async (req, res) => {
   try {
-    const customers = await Customer.find({}, "username email _id");
+    // Include 'isActive' in the projection to ensure it is returned
+    const customers = await Customer.find({}, "username email _id isActive");
     console.log("Fetched Customers:", customers); // Debugging log
     res.status(200).json(customers);
   } catch (e) {
@@ -71,13 +73,22 @@ const findById = async (req, res) => {
 const deleteById = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // First, delete the bookings associated with the customer
+    const deletedBookings = await Booking.deleteMany({ customerId: id });
+
+    if (deletedBookings.deletedCount === 0) {
+      console.log("No bookings found for this customer.");
+    }
+
+    // Then, delete the customer
     const customer = await Customer.findByIdAndDelete(id);
 
     if (!customer) {
       return res.status(404).json({ error: "Customer not found" });
     }
 
-    res.status(200).json({ message: "Deleted successfully" });
+    res.status(200).json({ message: "Customer and related bookings deleted successfully" });
   } catch (e) {
     res.status(500).json({ error: "Failed to delete customer", details: e.message });
   }
@@ -96,6 +107,49 @@ const update = async (req, res) => {
     res.status(500).json({ error: "Failed to update customer", details: e.message });
   }
 };
+// Get active status of a user by ID
+const getActiveStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the customer by ID
+    const customer = await Customer.findById(id);
+
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+
+    // Send the active status of the user
+    res.status(200).json({ isActive: customer.isActive });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch active status", details: e.message });
+  }
+};
+
+// Update active status of a user by ID
+const updateActiveStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body; // This should be true or false
+
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ error: "isActive must be a boolean" });
+    }
+
+    // Find the customer and update the active status
+    const customer = await Customer.findByIdAndUpdate(id, { isActive }, { new: true });
+
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+
+    res.status(200).json({ message: "Active status updated successfully", isActive: customer.isActive });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update active status", details: err.message });
+  }
+};
+
+
 
 module.exports = {
   findAll,
@@ -103,4 +157,6 @@ module.exports = {
   findById,
   deleteById,
   update,
+  getActiveStatus,
+  updateActiveStatus,
 };
