@@ -10,6 +10,7 @@ const AuthRouter=require("./routes/authRoutes");
 const contactRouter=require("./routes/contactRoutes");
 const path=require('path');
 const paymentRoutes = require("./routes/paymentRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 
 
@@ -25,6 +26,9 @@ app.use("/api/booking",BookingRouter)
 app.use("/api/auth",AuthRouter)
 app.use('/hotel_images', express.static(path.join(__dirname, 'hotel_images')));
 app.use("/api/contact",contactRouter)
+
+// Use Routes
+app.use("/api", dashboardRoutes);
 const port=5000;
 app.use("/api/payment", paymentRoutes);
 app.listen(port,()=>{
